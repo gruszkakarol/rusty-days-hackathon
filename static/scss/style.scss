@@ -1,0 +1,25 @@
+@import "normalize/import-now";
+@import "variables";
+@import "board";
+
+body, html {
+  height: 100%;
+}
+
+.app {
+  width: 100%;
+  height: 100%;
+  background-color: $BACKGROUND;
+}
+
+.boards {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: $BACKGROUND;
+  justify-content: center;
+  align-items: center;
+}
+
+.board {
+  margin: 2.5%;
+}

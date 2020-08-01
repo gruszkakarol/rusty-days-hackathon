@@ -1,14 +1,15 @@
 #![recursion_limit = "512"]
+mod client;
+mod conway;
+mod renderer;
+mod soundgen;
+
+use client::App;
 use conway::Grid;
-use draw::Renderer;
+use renderer::Renderer;
 use soundgen::SoundGenerator;
 use std::{thread, time};
 use wasm_bindgen::prelude::*;
-
-mod app;
-mod conway;
-mod draw;
-mod soundgen;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -20,7 +21,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[wasm_bindgen]
 pub fn run_app() -> Result<(), JsValue> {
     wasm_logger::init(wasm_logger::Config::default());
-    yew::start_app::<app::App>();
+    yew::start_app::<App>();
 
     let mut grid = Grid::random();
     let renderer = Renderer::new();
