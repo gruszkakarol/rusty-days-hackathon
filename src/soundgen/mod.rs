@@ -23,7 +23,7 @@ impl SoundGenerator {
         }
     }
 
-    pub fn play(&self, _value: u32) -> Result<()> {
+    pub fn play(&self, value: u32) -> Result<()> {
         // Create our web audio objects.
         let primary = self.ctx.create_oscillator()?;
         let fm_osc = self.ctx.create_oscillator()?;
@@ -32,7 +32,7 @@ impl SoundGenerator {
 
         // Some initial settings:
         primary.set_type(OscillatorType::Sine);
-        primary.frequency().set_value(midi_to_freq(66));
+        primary.frequency().set_value(pentatonic(value));
 
         // Give the amp a shape.
         gain.gain().set_value(0.0);
@@ -74,6 +74,22 @@ impl SoundGenerator {
 
 fn midi_to_freq(note: u8) -> f32 {
     27.5 * 2f32.powf((note as f32 - 21.0) / 12.0)
+}
+
+/// Given a value, this will deterministically produce pentatonic notes from the 48-107
+/// (midi notation) range. There's 25 sounds in total before it starts looping from the beginning.
+fn pentatonic(value: u32) -> f32 {
+    let base = match value % 5 {
+        0 => 48,
+        1 => 50,
+        2 => 52,
+        3 => 55,
+        _ => 57,
+    };
+
+    let multiplier = (value / 5) % 5;
+
+    midi_to_freq(base + (multiplier * 12) as u8)
 }
 
 // For how to use this, see: https://docs.rs/thiserror/1.0.20/thiserror/
