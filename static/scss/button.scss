@@ -1,0 +1,17 @@
+.button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.add {
+    background-color: transparent;
+    color: $WHITE;
+    font-size: 32px;
+    padding: 16px;
+    border-radius: 50%;
+}

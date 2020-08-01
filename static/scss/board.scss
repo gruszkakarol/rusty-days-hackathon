@@ -4,5 +4,27 @@
     background-color: $ELEMENT_BACKGROUND;
     border-radius: 5px;
     color: $ELEMENT_BACKGROUND;
+    box-sizing: border-box;
+    transition: border 0.3s linear;
+    border: 3px solid rgba($WHITE, 0);
+    position: relative;
 
+    &__close {
+        position: absolute;
+        font-size: 18px;
+        width: 24px;
+        height: 24px;
+        top: -12px;
+        right: -12px;
+        background-color: $WHITE;
+        padding: 4px;
+        border-radius: 50%;
+        color: $RED;
+        opacity: 0;
+        transition: opacity 0.3s linear;
+    }
+
+    &:hover &__close  {
+        opacity: 1;
+    }
 }

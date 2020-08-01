@@ -1,15 +1,13 @@
 use yew::prelude::*;
 
-pub struct Board {
-    link: ComponentLink<Self>,
-}
+pub struct Board;
 
 impl Component for Board {
     type Properties = ();
     type Message = ();
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self { link }
+        Self
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
@@ -22,7 +20,14 @@ impl Component for Board {
 
     fn view(&self) -> Html {
         html! {
-            <div class="board" />
+            <div class="board">
+                <button class="button board__close">
+                    <i class="fas fa-times" />
+                </button>
+                <div class="board__cells">
+                    {"."}
+                </div>
+            </div>
         }
     }
 }
