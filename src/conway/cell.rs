@@ -1,14 +1,14 @@
 #[derive(Debug, Clone, Copy)]
 pub struct Cell {
     pub alive: bool,
-    pub just_killed: bool,
+    pub just_changed: bool,
 }
 
 impl Into<Cell> for bool {
     fn into(self) -> Cell {
         Cell {
             alive: self,
-            just_killed: false,
+            just_changed: false,
         }
     }
 }

@@ -7,9 +7,9 @@ use super::GameError;
 use super::Result;
 
 /// width of a single grid
-pub const GRID_WIDTH: usize = 500;
+pub const GRID_WIDTH: usize = 200;
 /// height of a single grid
-pub const GRID_HEIGHT: usize = 500;
+pub const GRID_HEIGHT: usize = 200;
 
 pub const NUMBER_OF_SUBGRIDS: usize = 25;
 
@@ -61,12 +61,15 @@ impl Grid {
             .for_each(|(idx, cell)| {
                 *cell = match self.count_neighbors(idx) {
                     2 if bool::from(*cell) => true.into(),
-                    3 => true.into(),
+                    3 => Cell {
+                        alive: true,
+                        just_changed: !bool::from(*cell),
+                    },
                     _ => {
                         death_counter += bool::from(*cell) as usize;
                         Cell {
                             alive: false,
-                            just_killed: bool::from(*cell),
+                            just_changed: bool::from(*cell),
                         }
                     }
                 }
@@ -107,7 +110,7 @@ impl Grid {
 
         *cell = Cell {
             alive: !cell.alive,
-            just_killed: cell.alive,
+            just_changed: true,
         };
 
         Ok(())
@@ -123,7 +126,7 @@ impl Grid {
 
         *cell = Cell {
             alive: value,
-            just_killed: !value,
+            just_changed: value != bool::from(*cell),
         };
 
         Ok(())
@@ -143,22 +146,29 @@ impl Grid {
 
     /// Counts the deaths in each subgrid.
     /// Returns counted values for each subgrid
-    pub fn count_deaths_in_subgrids(&self) -> Vec<u32> {
-        let mut subgrid_deaths: Vec<u32> = Vec::with_capacity(NUMBER_OF_SUBGRIDS);
+    /// Returns (pitch, volume)
+    pub fn count_deaths_in_subgrids(&self) -> Vec<(u32, u32)> {
+        let mut subgrid_values: Vec<(u32, u32)> = Vec::with_capacity(NUMBER_OF_SUBGRIDS);
 
         for (index_start, index_end) in &self.subgrids {
-            let mut subgrid_death_counter: u32 = 0;
+            let mut pitch_value: u32 = 0;
+            let mut volume_value: u32 = 0;
 
             for row in index_start.row..index_end.row {
                 for col in index_start.col..index_end.col {
-                    subgrid_death_counter += self.cells[row * GRID_WIDTH + col].just_killed as u32;
+                    let idx = row * GRID_WIDTH + col;
+                    if bool::from(self.cells[idx]) {
+                        volume_value += self.cells[idx].just_changed as u32;
+                    } else {
+                        pitch_value += self.cells[idx].just_changed as u32;
+                    }
                 }
             }
 
-            subgrid_deaths.push(subgrid_death_counter);
+            subgrid_values.push((pitch_value, volume_value));
         }
 
-        subgrid_deaths
+        subgrid_values
     }
 
     /// Returns subgrids for the current grid
@@ -168,19 +178,16 @@ impl Grid {
         let subgrid_rows_number: usize = GRID_HEIGHT / n;
         let subgrid_cols_number: usize = GRID_WIDTH / n;
 
-        let row = 0;
-        let col = 0;
-
         for c in 0..n {
             for r in 0..n {
                 let index_start = Index {
-                    row: 0 + r * subgrid_rows_number,
-                    col: 0 + c * subgrid_cols_number,
+                    row: r * subgrid_rows_number,
+                    col: c * subgrid_cols_number,
                 };
 
                 let index_end = Index {
-                    row: 0 + (r + 1) * subgrid_rows_number - 1,
-                    col: 0 + (c + 1) * subgrid_cols_number - 1,
+                    row: (r + 1) * subgrid_rows_number - 1,
+                    col: (c + 1) * subgrid_cols_number - 1,
                 };
 
                 subgrids.push((index_start, index_end));
@@ -328,6 +335,6 @@ mod test {
         println!("{}", now);
         assert!(!deaths_in_subgrids
             .iter()
-            .any(|&number_of_deaths| number_of_deaths == 0));
+            .any(|&(pitch, volume)| pitch == 0 && volume == 0));
     }
 }

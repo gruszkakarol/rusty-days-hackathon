@@ -80,7 +80,7 @@ impl Conway {
             return;
         }
 
-        self.grids.iter_mut().for_each(|mut grid| {
+        self.grids.iter_mut().for_each(|grid| {
             grid.next_gen();
         })
     }
@@ -98,27 +98,27 @@ impl Conway {
     }
 
     pub fn stop_game(&mut self, game_index: usize) -> Result<()> {
-        Ok(self
-            .grids
+        self.grids
             .get_mut(game_index)
             .ok_or_else(|| GameError::IndexOutOfBounds(game_index.into()))?
-            .stop())
+            .stop();
+        Ok(())
     }
 
     pub fn start_game(&mut self, game_index: usize) -> Result<()> {
-        Ok(self
-            .grids
+        self.grids
             .get_mut(game_index)
             .ok_or_else(|| GameError::IndexOutOfBounds(game_index.into()))?
-            .start())
+            .start();
+        Ok(())
     }
 
     pub fn toggle_game(&mut self, game_index: usize) -> Result<()> {
-        Ok(self
-            .grids
+        self.grids
             .get_mut(game_index)
             .ok_or_else(|| GameError::IndexOutOfBounds(game_index.into()))?
-            .toggle())
+            .toggle();
+        Ok(())
     }
 }
 
@@ -148,7 +148,7 @@ mod test {
 
     #[test]
     fn test_if_grids_change() {
-        let mut games = Conway::start_with_capacity(15);
+        let mut games = Conway::start_with_capacity(10);
 
         let old_games = games.clone();
         let now = Instant::now();
