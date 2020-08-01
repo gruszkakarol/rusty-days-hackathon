@@ -4,48 +4,119 @@
 //! * counting the cells of an organism, and
 //! * determining whether an organism is dying.
 
-const WIDTH: usize = 500;
-const HEIGHT: usize = 500;
+mod error;
+mod grid;
+mod index;
+mod organism;
 
-pub struct Grid {
-    rows: [[bool; WIDTH]; HEIGHT],
+pub use error::GameError;
+pub use grid::Grid;
+pub use index::Index;
+
+pub type Result<V> = std::result::Result<V, GameError>;
+
+/// A structure holding all the grids, that are being played at the same time
+#[derive(Clone)]
+pub struct Conway {
+    grids: Vec<Grid>,
 }
 
-impl Grid {
-    pub fn random() -> Grid {
-        todo!();
+impl Conway {
+    pub fn new() -> Self {
+        Self { grids: Vec::new() }
+    }
+
+    /// Creates new Conway game with `capacity` number of games. All of the games are being
+    /// randomized and started
+    pub fn start_with_capacity(capacity: usize) -> Self {
+        let mut grids = Vec::<Grid>::with_capacity(capacity);
+
+        for _ in 0..capacity {
+            grids.push(Grid::random());
+        }
+
+        Self { grids }
+    }
+
+    /// Returns iterator over the games
+    pub fn iter(&self) -> std::slice::Iter<Grid> {
+        self.grids.iter()
+    }
+
+    /// Returns mutable iterator over the games
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<Grid> {
+        self.grids.iter_mut()
+    }
+
+    /// Adds a new grid to the game
+    pub fn add_game(&mut self, game: Grid) {
+        self.grids.push(game);
+    }
+
+    pub fn number_of_games(&self) -> usize {
+        self.grids.len()
+    }
+
+    /// Removes the grid with the `index`
+    // NOTE: It might be a good idea to use some identifiers for the games
+    pub fn remove_game(&mut self, index: usize) -> Result<Grid> {
+        if index >= self.number_of_games() {
+            return Err(GameError::IndexOutOfBounds(index.into()));
+        }
+
+        Ok(self.grids.remove(index))
     }
 
     pub fn next_gen(&mut self) {
-        todo!();
-    }
-
-    pub fn organisms(&self) -> Organisms {
-        todo!();
+        self.grids.iter_mut().for_each(Grid::next_gen)
     }
 }
 
-pub struct Organism;
+#[cfg(test)]
+mod test {
+    use super::*;
 
-impl Organism {
-    pub fn is_dying(&self) -> bool {
-        todo!();
+    #[test]
+    fn with_capacity() {
+        let mut games = Conway::start_with_capacity(5);
+        assert_eq!(games.iter().len(), 5);
+
+        games.add_game(Grid::random());
+        assert_eq!(games.iter().len(), 6);
+
+        games.add_game(Grid::random());
+        assert_eq!(games.iter().len(), 7);
+
+        games.remove_game(1).unwrap();
+        assert_eq!(games.iter().len(), 6);
+
+        games.remove_game(1).unwrap();
+        assert_eq!(games.iter().len(), 5);
     }
 
-    pub fn cell_count(&self) -> usize {
-        todo!();
-    }
-}
+    #[test]
+    fn test_if_grids_change() {
+        let mut games = Conway::start_with_capacity(5);
 
-/// Iterator over a grid's organisms.
-pub struct Organisms<'o> {
-    grid: &'o Grid,
-}
+        let old_games = games.clone();
+        games.next_gen();
+        assert!(!games
+            .iter()
+            .zip(old_games.iter())
+            .any(|(new, old)| old == new));
 
-impl<'o> Iterator for Organisms<'o> {
-    type Item = &'o Organism;
+        let old_games = games.clone();
+        games.next_gen();
+        assert!(!games
+            .iter()
+            .zip(old_games.iter())
+            .any(|(new, old)| old == new));
 
-    fn next(&mut self) -> Option<Self::Item> {
-        todo!();
+        let old_games = games.clone();
+        games.next_gen();
+        assert!(!games
+            .iter()
+            .zip(old_games.iter())
+            .any(|(new, old)| old == new));
     }
 }
