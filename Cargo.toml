@@ -29,4 +29,11 @@ wasm-bindgen-test = "0.3"
 version = "0.3.4"
 features = [
   'KeyboardEvent',
+  'AudioContext',
+  'AudioDestinationNode',
+  'AudioNode',
+  'AudioParam',
+  'GainNode',
+  'OscillatorNode',
+  'OscillatorType',
 ]
