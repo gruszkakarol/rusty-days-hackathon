@@ -4,6 +4,7 @@
 //! * counting the cells of an organism, and
 //! * determining whether an organism is dying.
 
+mod cell;
 mod error;
 mod grid;
 mod index;
@@ -18,12 +19,16 @@ pub type Result<V> = std::result::Result<V, GameError>;
 /// A structure holding all the grids, that are being played at the same time
 #[derive(Clone)]
 pub struct Conway {
+    stopped: bool,
     grids: Vec<Grid>,
 }
 
 impl Conway {
     pub fn new() -> Self {
-        Self { grids: Vec::new() }
+        Self {
+            grids: Vec::new(),
+            stopped: false,
+        }
     }
 
     /// Creates new Conway game with `capacity` number of games. All of the games are being
@@ -35,7 +40,10 @@ impl Conway {
             grids.push(Grid::random());
         }
 
-        Self { grids }
+        Self {
+            grids,
+            stopped: false,
+        }
     }
 
     /// Returns iterator over the games
@@ -68,7 +76,49 @@ impl Conway {
     }
 
     pub fn next_gen(&mut self) {
-        self.grids.iter_mut().for_each(Grid::next_gen)
+        if self.stopped {
+            return;
+        }
+
+        self.grids.iter_mut().for_each(|mut grid| {
+            grid.next_gen();
+        })
+    }
+
+    pub fn stop(&mut self) {
+        self.stopped = true;
+    }
+
+    pub fn start(&mut self) {
+        self.stopped = false;
+    }
+
+    pub fn toggle(&mut self) {
+        self.stopped = !self.stopped;
+    }
+
+    pub fn stop_game(&mut self, game_index: usize) -> Result<()> {
+        Ok(self
+            .grids
+            .get_mut(game_index)
+            .ok_or_else(|| GameError::IndexOutOfBounds(game_index.into()))?
+            .stop())
+    }
+
+    pub fn start_game(&mut self, game_index: usize) -> Result<()> {
+        Ok(self
+            .grids
+            .get_mut(game_index)
+            .ok_or_else(|| GameError::IndexOutOfBounds(game_index.into()))?
+            .start())
+    }
+
+    pub fn toggle_game(&mut self, game_index: usize) -> Result<()> {
+        Ok(self
+            .grids
+            .get_mut(game_index)
+            .ok_or_else(|| GameError::IndexOutOfBounds(game_index.into()))?
+            .toggle())
     }
 }
 
@@ -79,27 +129,32 @@ mod test {
     #[test]
     fn with_capacity() {
         let mut games = Conway::start_with_capacity(5);
-        assert_eq!(games.iter().len(), 5);
+        assert_eq!(games.number_of_games(), 5);
 
         games.add_game(Grid::random());
-        assert_eq!(games.iter().len(), 6);
+        assert_eq!(games.number_of_games(), 6);
 
         games.add_game(Grid::random());
-        assert_eq!(games.iter().len(), 7);
+        assert_eq!(games.number_of_games(), 7);
 
         games.remove_game(1).unwrap();
-        assert_eq!(games.iter().len(), 6);
+        assert_eq!(games.number_of_games(), 6);
 
         games.remove_game(1).unwrap();
-        assert_eq!(games.iter().len(), 5);
+        assert_eq!(games.number_of_games(), 5);
     }
+
+    use std::time::Instant;
 
     #[test]
     fn test_if_grids_change() {
-        let mut games = Conway::start_with_capacity(5);
+        let mut games = Conway::start_with_capacity(15);
 
         let old_games = games.clone();
+        let now = Instant::now();
         games.next_gen();
+        let now = now.elapsed().as_secs_f32();
+        println!("{}", now);
         assert!(!games
             .iter()
             .zip(old_games.iter())
