@@ -1,28 +1,27 @@
 mod board;
 
-use board::Board;
+use board::BoardView;
 use yew::prelude::*;
 
-// #[derive(Properties, Clone)]
-// pub struct Props {
-//     pub children: Children,
-// }
+type Board = ();
 
 pub struct App {
     link: ComponentLink<Self>,
-    boards: Vec<i32>,
-}
-
-impl App {
-    fn board_view(&self) -> Html {
-        html! {
-            <Board />
-        }
-    }
+    boards: Vec<Board>,
 }
 
 pub enum Message {
     SpawnBoard,
+    DeleteBoard(usize),
+}
+
+impl App {
+    fn board_view(&self, board: &Board, index: usize) -> Html {
+        let on_delete = self.link.callback(move |_| Message::DeleteBoard(index));
+        html! {
+            <BoardView on_delete=on_delete />
+        }
+    }
 }
 
 impl Component for App {
@@ -44,7 +43,11 @@ impl Component for App {
         match msg {
             Message::SpawnBoard => {
                 // TODO: push new board when they are ready instead of a number
-                self.boards.push(0);
+                self.boards.push(());
+                true
+            }
+            Message::DeleteBoard(index) => {
+                self.boards.remove(index);
                 true
             }
             _ => false,
@@ -56,7 +59,7 @@ impl Component for App {
         html! {
             <div class="app">
                 <div class="boards">
-                    {self.boards.iter().map(|b| self.board_view()).collect::<Html>()}
+                    {self.boards.iter().enumerate().map(|(i, b)| self.board_view(&b, i)).collect::<Html>()}
                     <button class="button add" onclick=onclick>
                         <i class="fas fa-plus"></i>
                     </button>
