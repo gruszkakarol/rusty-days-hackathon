@@ -12,11 +12,15 @@ pub struct Grid {
 }
 
 impl Grid {
+    pub fn random() -> Grid {
+        todo!();
+    }
+
     pub fn next_gen(&mut self) {
         todo!();
     }
 
-    pub fn organisms() -> Organisms {
+    pub fn organisms(&self) -> Organisms {
         todo!();
     }
 }
@@ -34,4 +38,14 @@ impl Organism {
 }
 
 /// Iterator over a grid's organisms.
-pub struct Organisms;
+pub struct Organisms<'o> {
+    grid: &'o Grid,
+}
+
+impl<'o> Iterator for Organisms<'o> {
+    type Item = &'o Organism;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        todo!();
+    }
+}

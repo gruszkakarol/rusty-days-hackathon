@@ -5,10 +5,14 @@ use thiserror::Error;
 
 type Result<V> = std::result::Result<V, SoundError>;
 
-struct SoundGenerator;
+pub struct SoundGenerator;
 
 impl SoundGenerator {
-    fn play(value: u32) -> Result<()> {
+    pub fn new() -> SoundGenerator {
+        SoundGenerator
+    }
+
+    pub fn play(&self, value: u32) -> Result<()> {
         todo!();
     }
 }

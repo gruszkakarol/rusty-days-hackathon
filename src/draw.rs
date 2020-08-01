@@ -7,7 +7,7 @@ use crate::conway::Grid;
 
 type Result<V> = std::result::Result<V, RenderError>;
 
-struct Renderer;
+pub struct Renderer;
 
 impl Renderer {
     pub fn new() -> Renderer {
