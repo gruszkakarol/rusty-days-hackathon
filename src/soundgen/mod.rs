@@ -2,10 +2,10 @@
 //! some input value.
 
 use thiserror::Error;
-use web_sys::{AudioContext, OscillatorType};
 use wasm_bindgen::JsValue;
+use web_sys::{AudioContext, OscillatorType};
 
-type Result<V> = std::result::Result<V, SoundError>;
+pub type Result<V> = std::result::Result<V, SoundError>;
 
 const ATTACK: f64 = 0.15;
 const RELEASE: f64 = 0.3;
@@ -36,9 +36,11 @@ impl SoundGenerator {
 
         // Give the amp a shape.
         gain.gain().set_value(0.0);
-        gain.gain().linear_ramp_to_value_at_time(PEAK, self.ctx.current_time() + ATTACK)?;
-        gain.gain().linear_ramp_to_value_at_time(0.0, self.ctx.current_time() + SWEEP - RELEASE)?;
-        
+        gain.gain()
+            .linear_ramp_to_value_at_time(PEAK, self.ctx.current_time() + ATTACK)?;
+        gain.gain()
+            .linear_ramp_to_value_at_time(0.0, self.ctx.current_time() + SWEEP - RELEASE)?;
+
         // The FM oscillator isn't really used right now.
         fm_gain.gain().set_value(0.0); // no initial frequency modulation
         fm_osc.set_type(OscillatorType::Sine);
