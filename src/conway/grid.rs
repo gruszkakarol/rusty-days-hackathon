@@ -38,11 +38,12 @@ impl Grid {
 
     pub fn random() -> Grid {
         let mut rng = thread_rng();
-        let mut cells: [Cell; GRID_WIDTH * GRID_HEIGHT] = [true.into(); GRID_WIDTH * GRID_HEIGHT];
+        let mut cells: [Cell; GRID_WIDTH * GRID_HEIGHT] = [false.into(); GRID_WIDTH * GRID_HEIGHT];
 
-        cells
-            .iter_mut()
-            .for_each(|cell| *cell = rng.gen_bool(1.2 / 3.0).into());
+        cells.iter_mut().for_each(|cell| {
+            let value = rng.gen_bool(1.2 / 3.0).into();
+            *cell = value;
+        });
 
         Self {
             cells,
@@ -53,20 +54,20 @@ impl Grid {
         }
     }
 
-    pub fn next_gen(&mut self) -> usize {
+    pub fn next_gen(&mut self) {
         if self.stopped {
-            return 0;
+            return;
         }
 
-        let mut death_counter: usize = 0;
         let mut new_generation: [Cell; GRID_WIDTH * GRID_HEIGHT] =
             [true.into(); GRID_HEIGHT * GRID_HEIGHT];
         new_generation
             .iter_mut()
             .enumerate()
             .for_each(|(idx, cell)| {
-                let cell_alive = cell.alive;
-                *cell = match self.count_neighbors(idx) {
+                let cell_alive = self.cells[idx].alive;
+                let neighbors = self.count_neighbors(idx);
+                *cell = match neighbors {
                     2 if cell_alive => Cell {
                         alive: true,
                         just_changed: false,
@@ -75,19 +76,14 @@ impl Grid {
                         alive: true,
                         just_changed: !cell_alive,
                     },
-                    _ => {
-                        death_counter += cell_alive as usize;
-                        Cell {
-                            alive: false,
-                            just_changed: cell_alive,
-                        }
-                    }
-                }
+                    _ => Cell {
+                        alive: false,
+                        just_changed: cell_alive,
+                    },
+                };
             });
 
         self.cells = new_generation;
-
-        death_counter
     }
 
     pub fn organisms(&self) -> Organisms {
