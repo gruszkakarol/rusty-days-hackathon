@@ -111,7 +111,7 @@ impl Sound {
             attack: 0.15,
             release: 0.3,
             sweep: 0.7,
-            peak: 0.6,
+            peak: 0.3,
             oscillator_type: OscillatorType::Sine,
             fm_gain: 0.0,
             fm_freq: 0.0,
