@@ -8,7 +8,6 @@ mod cell;
 mod error;
 mod grid;
 mod index;
-mod organism;
 
 pub use cell::{Cell, CELL_SIZE};
 pub use error::GameError;
