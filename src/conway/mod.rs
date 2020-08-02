@@ -22,6 +22,7 @@ pub type Result<V> = std::result::Result<V, GameError>;
 pub struct Conway {
     pub stopped: bool,
     grids: Vec<Grid>,
+    last_gen_index: usize,
 }
 
 impl Conway {
@@ -29,6 +30,7 @@ impl Conway {
         Self {
             grids: Vec::new(),
             stopped: false,
+            last_gen_index: 0,
         }
     }
 
@@ -44,6 +46,7 @@ impl Conway {
         Self {
             grids,
             stopped: true,
+            last_gen_index: 0,
         }
     }
 
@@ -84,6 +87,25 @@ impl Conway {
         self.grids.iter_mut().for_each(|grid| {
             grid.next_gen();
         })
+    }
+
+    pub fn gen_one(&mut self) -> Option<usize> {
+        if self.stopped || self.grids.is_empty() {
+            return None;
+        }
+        let number_of_grids = self.grids.len();
+
+        // make sure to run one, unless all grids are stopped, prevent infinite loop
+        for _ in 0..number_of_grids {
+            if self.grids[self.last_gen_index].next_gen() {
+                let idx = self.last_gen_index;
+                self.last_gen_index = (self.last_gen_index + 1) % number_of_grids;
+                return Some(idx);
+            }
+            self.last_gen_index = (self.last_gen_index + 1) % number_of_grids;
+        }
+
+        None
     }
 
     pub fn stop(&mut self) {
