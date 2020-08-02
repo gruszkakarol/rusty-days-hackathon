@@ -1,27 +1,20 @@
-mod board;
 mod controls;
+mod grid;
 
-use board::BoardView;
+use crate::conway::{Conway, Grid};
 use controls::Controls;
+use grid::GridView;
 use yew::prelude::*;
 
-type Board = ();
-
 struct State {
-    boards: Vec<Board>,
-    simulation_started: bool,
+    simulation: Conway,
 }
 
 impl State {
     pub fn new() -> Self {
         State {
-            boards: Vec::new(),
-            simulation_started: false,
+            simulation: Conway::new(),
         }
-    }
-
-    fn toggle_simulation(&mut self) {
-        self.simulation_started = !self.simulation_started;
     }
 }
 
@@ -31,16 +24,16 @@ pub struct App {
 }
 
 pub enum Message {
-    SpawnBoard,
-    DeleteBoard(usize),
+    SpawnGrid,
+    DeleteGrid(usize),
     ToggleSimulation,
 }
 
 impl App {
-    fn board_view(&self, board: &Board, index: usize) -> Html {
-        let on_delete = self.link.callback(move |_| Message::DeleteBoard(index));
+    fn grid_view(&self, grid: &Grid, index: usize) -> Html {
+        let on_delete = self.link.callback(move |_| Message::DeleteGrid(index));
         html! {
-            <BoardView on_delete=on_delete />
+            <GridView on_delete=on_delete grid=grid />
         }
     }
 }
@@ -62,17 +55,17 @@ impl Component for App {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Message::SpawnBoard => {
+            Message::SpawnGrid => {
                 // TODO: push new board when they are ready instead of a number
-                self.state.boards.push(());
+                self.state.simulation.add_game(Grid::random());
                 true
             }
-            Message::DeleteBoard(index) => {
-                self.state.boards.remove(index);
+            Message::DeleteGrid(index) => {
+                self.state.simulation.remove_game(index);
                 true
             }
             Message::ToggleSimulation => {
-                self.state.toggle_simulation();
+                self.state.simulation.toggle();
                 true
             }
             _ => false,
@@ -80,17 +73,17 @@ impl Component for App {
     }
 
     fn view(&self) -> Html {
-        let spawn_board = self.link.callback(|_| Message::SpawnBoard);
+        let spawn_grid = self.link.callback(|_| Message::SpawnGrid);
         let toggle_simulation = self.link.callback(|_| Message::ToggleSimulation);
         html! {
             <div class="app">
-                <div class="boards">
-                    {self.state.boards.iter().enumerate().map(|(i, b)| self.board_view(&b, i)).collect::<Html>()}
-                    <button class="button add" onclick=spawn_board>
+                <div class="grids">
+                    {self.state.simulation.iter().enumerate().map(|(i, g)| self.grid_view(&g, i)).collect::<Html>()}
+                    <button class="button add" onclick=spawn_grid>
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
-                <Controls simulation_started=self.state.simulation_started on_click=toggle_simulation />
+                <Controls simulation_started=self.state.simulation.stopped on_click=toggle_simulation />
             </div>
         }
     }

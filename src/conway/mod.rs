@@ -10,6 +10,7 @@ mod grid;
 mod index;
 mod organism;
 
+pub use cell::Cell;
 pub use error::GameError;
 pub use grid::Grid;
 pub use index::Index;
@@ -19,7 +20,7 @@ pub type Result<V> = std::result::Result<V, GameError>;
 /// A structure holding all the grids, that are being played at the same time
 #[derive(Clone)]
 pub struct Conway {
-    stopped: bool,
+    pub stopped: bool,
     grids: Vec<Grid>,
 }
 
@@ -27,7 +28,7 @@ impl Conway {
     pub fn new() -> Self {
         Self {
             grids: Vec::new(),
-            stopped: false,
+            stopped: true,
         }
     }
 
@@ -42,7 +43,7 @@ impl Conway {
 
         Self {
             grids,
-            stopped: false,
+            stopped: true,
         }
     }
 

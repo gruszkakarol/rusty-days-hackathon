@@ -1,8 +1,9 @@
 @import "normalize/import-now";
 @import "variables";
-@import "board";
+@import "grid";
 @import "button";
 @import "controls";
+@import "cell";
 
 body, html {
   height: 100%;
@@ -15,7 +16,7 @@ body, html {
   background-color: $BACKGROUND;
 }
 
-.boards {
+.grids {
   display: flex;
   flex-wrap: wrap;
   background-color: $BACKGROUND;
@@ -25,6 +26,6 @@ body, html {
   height: 100%;
 }
 
-.board {
+.grid {
   margin: 2.5%;
 }

@@ -1,6 +1,6 @@
-.board {
-    height: 240px;
-    width: 240px;
+.grid {
+    height: 500px;
+    width: 500px;
     background-color: $ELEMENT_BACKGROUND;
     border-radius: 5px;
     color: $ELEMENT_BACKGROUND;
@@ -26,5 +26,10 @@
 
     &:hover &__close  {
         opacity: 1;
+    }
+
+    &__cells {
+        display: flex;
+        flex-wrap: wrap;
     }
 }

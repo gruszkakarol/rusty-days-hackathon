@@ -1,0 +1,12 @@
+.cell {
+    width: 5px;
+    height: 5px;
+
+    &__alive {
+        background-color: $WHITE;
+    }
+
+    &__dead {
+        background-color: $BLACK;
+    }
+}
