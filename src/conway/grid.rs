@@ -54,9 +54,9 @@ impl Grid {
         }
     }
 
-    pub fn next_gen(&mut self) {
+    pub fn next_gen(&mut self) -> bool {
         if self.stopped {
-            return;
+            return false;
         }
 
         let mut new_generation: [Cell; GRID_WIDTH * GRID_HEIGHT] =
@@ -81,10 +81,11 @@ impl Grid {
                         just_changed: cell_alive,
                     },
                 };
-                println!("{:?}", cell);
             });
 
         self.cells = new_generation;
+
+        true
     }
 
     pub fn iter(&self) -> std::slice::Iter<Cell> {
