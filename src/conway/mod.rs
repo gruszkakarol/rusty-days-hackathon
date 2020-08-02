@@ -12,7 +12,6 @@ mod organism;
 
 pub use cell::{Cell, CELL_SIZE};
 pub use error::GameError;
-pub use grid::Grid;
 pub use grid::SubgridValuesIter;
 pub use grid::{Grid, GRID_HEIGHT, GRID_WIDTH, NUMBER_OF_SUBGRIDS};
 pub use index::Index;

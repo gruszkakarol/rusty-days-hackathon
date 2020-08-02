@@ -12,7 +12,7 @@ pub const GRID_WIDTH: usize = 25;
 /// height of a single grid
 pub const GRID_HEIGHT: usize = 25;
 
-pub const NUMBER_OF_SUBGRIDS: usize = 25;
+pub const NUMBER_OF_SUBGRIDS: usize = 1;
 
 /// Iterator over the values of pitch and volume for each subgrid in the Grid
 pub type SubgridValuesIter<'g> = std::slice::Iter<'g, (u32, u32)>;
@@ -68,7 +68,6 @@ impl Grid {
             .for_each(|(idx, cell)| {
                 let cell_alive = self.cells[idx].alive;
                 let neighbors = self.count_neighbors(idx);
-                print!("{}, {}, {:?}, {},", idx, cell_alive, cell, neighbors);
                 *cell = match neighbors {
                     2 if cell_alive => Cell {
                         alive: true,

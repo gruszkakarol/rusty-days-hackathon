@@ -1,4 +1,5 @@
 use crate::conway::{Grid, CELL_SIZE, GRID_HEIGHT, GRID_WIDTH};
+use crate::soundgen::SoundGenerator;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::HtmlCanvasElement;
 use yew::prelude::*;
@@ -76,8 +77,13 @@ impl GridView {
     }
 
     pub fn simulate(&mut self) {
+        let soundgen = SoundGenerator::new();
         self.props.grid.next_gen();
         self.draw();
+
+        for (x, y) in self.props.grid.get_pitch_and_volume_per_subgrid() {
+            soundgen.play(*x as u32).expect("Fix it");
+        }
     }
 }
 
