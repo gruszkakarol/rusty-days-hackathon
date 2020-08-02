@@ -7,18 +7,22 @@ use super::GameError;
 use super::Result;
 
 /// width of a single grid
-pub const GRID_WIDTH: usize = 200;
+pub const GRID_WIDTH: usize = 500;
 /// height of a single grid
-pub const GRID_HEIGHT: usize = 200;
+pub const GRID_HEIGHT: usize = 500;
 
 pub const NUMBER_OF_SUBGRIDS: usize = 25;
+
+/// Iterator over the values of pitch and volume for each subgrid in the Grid
+pub type SubgridValuesIter<'g> = std::slice::Iter<'g, (u32, u32)>;
 
 #[derive(Clone)]
 pub struct Grid {
     sound: u32,
     stopped: bool,
     cells: [Cell; GRID_WIDTH * GRID_HEIGHT],
-    subgrids: Vec<(Index, Index)>,
+    subgrids: [(Index, Index); NUMBER_OF_SUBGRIDS],
+    subgrid_values: [(u32, u32); NUMBER_OF_SUBGRIDS],
 }
 
 impl Grid {
@@ -28,6 +32,7 @@ impl Grid {
             sound,
             stopped,
             subgrids: Self::subgrids(),
+            subgrid_values: Default::default(),
         }
     }
 
@@ -44,6 +49,7 @@ impl Grid {
             stopped: false,
             sound: Default::default(),
             subgrids: Self::subgrids(),
+            subgrid_values: Default::default(),
         }
     }
 
@@ -59,17 +65,21 @@ impl Grid {
             .iter_mut()
             .enumerate()
             .for_each(|(idx, cell)| {
+                let cell_alive = cell.alive;
                 *cell = match self.count_neighbors(idx) {
-                    2 if bool::from(*cell) => true.into(),
+                    2 if cell_alive => Cell {
+                        alive: true,
+                        just_changed: false,
+                    },
                     3 => Cell {
                         alive: true,
-                        just_changed: !bool::from(*cell),
+                        just_changed: !cell_alive,
                     },
                     _ => {
-                        death_counter += bool::from(*cell) as usize;
+                        death_counter += cell_alive as usize;
                         Cell {
                             alive: false,
-                            just_changed: bool::from(*cell),
+                            just_changed: cell_alive,
                         }
                     }
                 }
@@ -91,13 +101,23 @@ impl Grid {
     pub fn count_neighbors<I: Into<Index>>(&self, index: I) -> usize {
         // The neighbor in the case of a grid is only an alive cell
         let index = index.into();
-        Self::__count_neighbors(&self.cells, index)
+        let mut neighbor_counter: usize = 0;
+
+        index.neighbors().iter().for_each(|neighbor_idx| {
+            neighbor_counter += self.cells[usize::from(*neighbor_idx)].alive as usize
+        });
+
+        neighbor_counter
     }
 
     pub fn count_ones(&self) -> usize {
+        let mut one_counter: usize = 0;
+
         self.cells
             .iter()
-            .fold(0, |acc, &cell| if bool::from(cell) { acc + 1 } else { acc })
+            .for_each(|cell| one_counter += cell.alive as usize);
+
+        one_counter
     }
 
     pub fn change_cell<I: Into<usize>>(&mut self, index: I) -> Result<()> {
@@ -126,7 +146,7 @@ impl Grid {
 
         *cell = Cell {
             alive: value,
-            just_changed: value != bool::from(*cell),
+            just_changed: value != cell.alive,
         };
 
         Ok(())
@@ -147,17 +167,15 @@ impl Grid {
     /// Counts the deaths in each subgrid.
     /// Returns counted values for each subgrid
     /// Returns (pitch, volume)
-    pub fn count_deaths_in_subgrids(&self) -> Vec<(u32, u32)> {
-        let mut subgrid_values: Vec<(u32, u32)> = Vec::with_capacity(NUMBER_OF_SUBGRIDS);
-
-        for (index_start, index_end) in &self.subgrids {
+    pub fn get_pitch_and_volume_per_subgrid(&mut self) -> SubgridValuesIter {
+        for (subgrid_idx, (index_start, index_end)) in self.subgrids.iter().enumerate() {
             let mut pitch_value: u32 = 0;
             let mut volume_value: u32 = 0;
 
             for row in index_start.row..index_end.row {
                 for col in index_start.col..index_end.col {
                     let idx = row * GRID_WIDTH + col;
-                    if bool::from(self.cells[idx]) {
+                    if self.cells[idx].alive {
                         volume_value += self.cells[idx].just_changed as u32;
                     } else {
                         pitch_value += self.cells[idx].just_changed as u32;
@@ -165,15 +183,15 @@ impl Grid {
                 }
             }
 
-            subgrid_values.push((pitch_value, volume_value));
+            self.subgrid_values[subgrid_idx] = (pitch_value, volume_value);
         }
-
-        subgrid_values
+        self.subgrid_values.iter()
     }
 
     /// Returns subgrids for the current grid
-    fn subgrids() -> Vec<(Index, Index)> {
-        let mut subgrids: Vec<(Index, Index)> = Vec::with_capacity(NUMBER_OF_SUBGRIDS);
+    fn subgrids() -> [(Index, Index); NUMBER_OF_SUBGRIDS] {
+        let mut subgrids: [(Index, Index); NUMBER_OF_SUBGRIDS] =
+            [(0usize.into(), 0usize.into()); NUMBER_OF_SUBGRIDS];
         let n = (NUMBER_OF_SUBGRIDS as f32).sqrt() as usize;
         let subgrid_rows_number: usize = GRID_HEIGHT / n;
         let subgrid_cols_number: usize = GRID_WIDTH / n;
@@ -190,104 +208,33 @@ impl Grid {
                     col: (c + 1) * subgrid_cols_number - 1,
                 };
 
-                subgrids.push((index_start, index_end));
+                subgrids[c * n + r] = (index_start, index_end);
             }
         }
 
         subgrids
     }
-
-    // fn find_organisms(&self) {
-    //     let mut board = self.cells.clone();
-
-    //     for x in 0..GRID_WIDTH {
-    //         for y in 0..GRID_HEIGHT {
-    //             let index = Index { row: y, col: x };
-
-    //             if !bool::from(board[usize::from(index)]) {
-    //                 continue;
-    //             }
-
-    //             let organism = Self::crawl_cells(&mut board, index);
-    //             Self::get_organism_center(organism);
-    //             todo!()
-    //         }
-    //     }
-    // }
-
-    // fn crawl_cells(
-    //     board: &mut [Cell; GRID_HEIGHT * GRID_WIDTH],
-    //     index: Index,
-    // ) -> Vec<(Index, usize)> {
-    //     let u_index = usize::from(index);
-    //     if !bool::from(board[u_index]) {
-    //         return Vec::new();
-    //     }
-
-    //     let mut vec: Vec<(Index, usize)> = Vec::new();
-
-    //     vec.push((index, 1 + Self::__count_neighbors(&board, index)));
-    //     board[u_index] = Cell {
-    //         alive: false,
-    //         just_killed: false,
-    //     };
-
-    //     for neighbor in index.neighbors() {
-    //         let mut crawled_vec = Self::crawl_cells(board, neighbor);
-    //         vec.append(&mut crawled_vec);
-    //     }
-
-    //     vec
-    // }
-
-    // fn get_organism_center(organism: Vec<(Index, usize)>) -> Index {
-    //     let mut cells_weight: usize = 0;
-    //     let mut row: usize = 0;
-    //     let mut col: usize = 0;
-
-    //     organism.iter().for_each(|(idx, worth)| {
-    //         cells_weight += worth;
-    //         row += idx.row * worth;
-    //         col += idx.col * worth;
-    //     });
-
-    //     Index {
-    //         row: (row as f32 / cells_weight as f32).round() as usize,
-    //         col: (col as f32 / cells_weight as f32).round() as usize,
-    //     }
-    // }
-
-    fn __count_neighbors(board: &[Cell; GRID_HEIGHT * GRID_WIDTH], index: Index) -> usize {
-        index.neighbors().iter().fold(0, |acc, &index| {
-            if bool::from(board[usize::from(index)]) {
-                acc + 1
-            } else {
-                acc
-            }
-        })
-    }
-}
-
-#[cfg(test)]
-impl PartialEq for Grid {
-    fn eq(&self, other: &Self) -> bool {
-        !self
-            .cells
-            .iter()
-            .zip(other.cells.iter())
-            .any(|(s, o)| s != o)
-    }
-}
-
-#[cfg(test)]
-impl std::fmt::Debug for Grid {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.cells.iter().collect::<Vec<&Cell>>())
-    }
 }
 
 #[cfg(test)]
 mod test {
+    impl PartialEq for Grid {
+        fn eq(&self, other: &Self) -> bool {
+            self.cells
+                .iter()
+                .zip(other.cells.iter())
+                .all(|(s, o)| s == o)
+        }
+    }
+
+    // NOTE: This implementation is highly unoptimized, but it is needed for testing purposes only,
+    // so it will not impact the performance of the application
+    impl std::fmt::Debug for Grid {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{:?}", self.cells.iter().collect::<Vec<&Cell>>())
+        }
+    }
+
     use super::*;
 
     #[test]
@@ -295,7 +242,7 @@ mod test {
         let grid = Grid::random();
         let true_count = grid
             .iter()
-            .fold(0, |acc, &cell| if bool::from(cell) { acc + 1 } else { acc });
+            .fold(0, |acc, &cell| if cell.alive { acc + 1 } else { acc });
         assert_ne!(true_count, GRID_HEIGHT * GRID_HEIGHT);
     }
 
@@ -330,11 +277,9 @@ mod test {
         let mut grid = Grid::random();
         let now = Instant::now();
         grid.next_gen();
-        let deaths_in_subgrids = grid.count_deaths_in_subgrids();
+        let mut deaths_in_subgrids = grid.get_pitch_and_volume_per_subgrid();
         let now = now.elapsed().as_secs_f32();
         println!("{}", now);
-        assert!(!deaths_in_subgrids
-            .iter()
-            .any(|&(pitch, volume)| pitch == 0 && volume == 0));
+        assert!(!deaths_in_subgrids.any(|&(pitch, volume)| pitch == 0 && volume == 0));
     }
 }
