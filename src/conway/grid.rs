@@ -7,11 +7,11 @@ use super::GameError;
 use super::Result;
 
 /// width of a single grid
-pub const GRID_WIDTH: usize = 100;
+pub const GRID_WIDTH: usize = 25;
 /// height of a single grid
-pub const GRID_HEIGHT: usize = 100;
+pub const GRID_HEIGHT: usize = 25;
 
-pub const NUMBER_OF_SUBGRIDS: usize = 25;
+pub const NUMBER_OF_SUBGRIDS: usize = 1;
 
 /// Iterator over the values of pitch and volume for each subgrid in the Grid
 pub type SubgridValuesIter<'g> = std::slice::Iter<'g, (u32, u32)>;
@@ -19,7 +19,7 @@ pub type SubgridValuesIter<'g> = std::slice::Iter<'g, (u32, u32)>;
 #[derive(Clone)]
 pub struct Grid {
     sound: u32,
-    stopped: bool,
+    pub stopped: bool,
     cells: [Cell; GRID_WIDTH * GRID_HEIGHT],
     subgrids: [(Index, Index); NUMBER_OF_SUBGRIDS],
     subgrid_values: [(u32, u32); NUMBER_OF_SUBGRIDS],
@@ -67,7 +67,6 @@ impl Grid {
             .for_each(|(idx, cell)| {
                 let cell_alive = self.cells[idx].alive;
                 let neighbors = self.count_neighbors(idx);
-                print!("{}, {}, {:?}, {},", idx, cell_alive, cell, neighbors);
                 *cell = match neighbors {
                     2 if cell_alive => Cell {
                         alive: true,
@@ -128,6 +127,11 @@ impl Grid {
         };
 
         Ok(())
+    }
+
+    pub fn get_cell<I: Into<usize>>(&self, index: I) -> Option<&Cell> {
+        let index = index.into();
+        self.cells.get(index)
     }
 
     pub fn set_cell<I: Into<usize>>(&mut self, index: I, value: bool) -> Result<()> {

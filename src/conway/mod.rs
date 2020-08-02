@@ -10,11 +10,10 @@ mod grid;
 mod index;
 mod organism;
 
-pub use cell::Cell;
+pub use cell::{Cell, CELL_SIZE};
 pub use error::GameError;
-pub use grid::Grid;
 pub use grid::SubgridValuesIter;
-pub use grid::{GRID_HEIGHT, GRID_WIDTH, NUMBER_OF_SUBGRIDS};
+pub use grid::{Grid, GRID_HEIGHT, GRID_WIDTH, NUMBER_OF_SUBGRIDS};
 pub use index::Index;
 
 pub type Result<V> = std::result::Result<V, GameError>;
@@ -30,7 +29,7 @@ impl Conway {
     pub fn new() -> Self {
         Self {
             grids: Vec::new(),
-            stopped: true,
+            stopped: false,
         }
     }
 
