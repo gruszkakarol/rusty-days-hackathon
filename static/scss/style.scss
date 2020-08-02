@@ -1,0 +1,31 @@
+@import "normalize/import-now";
+@import "variables";
+@import "grid";
+@import "button";
+@import "controls";
+@import "cell";
+
+body, html {
+  height: 100%;
+  font-family: 'Raleway', sans-serif;
+}
+
+.app {
+  width: 100%;
+  height: 100%;
+  background-color: $BACKGROUND;
+}
+
+.grids {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: $BACKGROUND;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  height: 100%;
+}
+
+.grid {
+  margin: 2.5%;
+}
