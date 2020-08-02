@@ -93,19 +93,31 @@ mod test {
         let neighbors = index.neighbors();
         assert_eq!(neighbors.len(), 3);
 
-        let index = Index { row: 199, col: 1 };
+        let index = Index {
+            row: GRID_HEIGHT - 1,
+            col: 1,
+        };
         let neighbors = index.neighbors();
         assert_eq!(neighbors.len(), 5);
 
-        let index = Index { row: 1, col: 199 };
+        let index = Index {
+            row: 1,
+            col: GRID_WIDTH - 1,
+        };
         let neighbors = index.neighbors();
         assert_eq!(neighbors.len(), 5);
 
-        let index = Index { row: 199, col: 199 };
+        let index = Index {
+            row: GRID_HEIGHT - 1,
+            col: GRID_WIDTH - 1,
+        };
         let neighbors = index.neighbors();
         assert_eq!(neighbors.len(), 3);
 
-        let index = Index { row: 125, col: 120 };
+        let index = Index {
+            row: GRID_HEIGHT / 2 + 2,
+            col: GRID_WIDTH / 2 + 2,
+        };
         let neighbors = index.neighbors();
         assert_eq!(neighbors.len(), 8);
     }

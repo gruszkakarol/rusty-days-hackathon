@@ -13,6 +13,8 @@ mod organism;
 pub use cell::Cell;
 pub use error::GameError;
 pub use grid::Grid;
+pub use grid::SubgridValuesIter;
+pub use grid::{GRID_HEIGHT, GRID_WIDTH, NUMBER_OF_SUBGRIDS};
 pub use index::Index;
 
 pub type Result<V> = std::result::Result<V, GameError>;
@@ -121,6 +123,17 @@ impl Conway {
             .toggle();
         Ok(())
     }
+
+    /// Returns vector of iterators. This should allow us to create a bit more complicated patterns
+    /// with the sounds, not just from right to left. But something like a cascade between the
+    /// subsequent grids or something similar
+    // Let's hope, lifetimes will not kill us here
+    pub fn get_pitch_and_volume_per_subgrids(&mut self) -> Vec<SubgridValuesIter> {
+        self.grids
+            .iter_mut()
+            .map(Grid::get_pitch_and_volume_per_subgrid)
+            .collect()
+    }
 }
 
 #[cfg(test)]
@@ -174,5 +187,30 @@ mod test {
             .iter()
             .zip(old_games.iter())
             .any(|(new, old)| old == new));
+    }
+
+    #[test]
+    fn test_pitch_and_volume() {
+        let mut games = Conway::start_with_capacity(10);
+
+        games.next_gen();
+        let number_of_games = games.grids.len();
+        let mut pitches_and_volumes = games.get_pitch_and_volume_per_subgrids();
+        let mut finished_grid_counter: usize = 0;
+
+        for i in 0..number_of_games * NUMBER_OF_SUBGRIDS {
+            let upper_bound: usize = (i + 1).min(number_of_games);
+            for grid_idx in finished_grid_counter..upper_bound {
+                match pitches_and_volumes[grid_idx].next() {
+                    Some((pitch, volume)) => {
+                        println!("({},{}), grid: {}", pitch, volume, grid_idx);
+                    }
+                    None => {
+                        finished_grid_counter += 1;
+                    }
+                }
+            }
+        }
+        assert!(false);
     }
 }
