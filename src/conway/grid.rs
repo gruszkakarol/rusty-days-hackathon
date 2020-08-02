@@ -7,9 +7,9 @@ use super::GameError;
 use super::Result;
 
 /// width of a single grid
-pub const GRID_WIDTH: usize = 25;
+pub const GRID_WIDTH: usize = 50;
 /// height of a single grid
-pub const GRID_HEIGHT: usize = 25;
+pub const GRID_HEIGHT: usize = 50;
 
 pub const NUMBER_OF_SUBGRIDS: usize = 1;
 
