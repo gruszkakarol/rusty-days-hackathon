@@ -1,4 +1,5 @@
-use rand::prelude::{thread_rng, Rng};
+use rand::prelude::Rng;
+use rand::rngs::OsRng;
 
 use super::cell::Cell;
 use super::index::Index;
@@ -37,11 +38,11 @@ impl Grid {
     }
 
     pub fn random() -> Grid {
-        let mut rng = thread_rng();
         let mut cells: [Cell; GRID_WIDTH * GRID_HEIGHT] = [false.into(); GRID_WIDTH * GRID_HEIGHT];
 
         cells.iter_mut().for_each(|cell| {
-            let value = rng.gen_bool(1.2 / 3.0).into();
+            let value = OsRng.gen_bool(1.2 / 3.0).into();
+            // println!("{:?}", value);
             *cell = value;
         });
 
@@ -67,6 +68,7 @@ impl Grid {
             .for_each(|(idx, cell)| {
                 let cell_alive = self.cells[idx].alive;
                 let neighbors = self.count_neighbors(idx);
+                print!("{}, {}, {:?}, {},", idx, cell_alive, cell, neighbors);
                 *cell = match neighbors {
                     2 if cell_alive => Cell {
                         alive: true,
@@ -81,6 +83,7 @@ impl Grid {
                         just_changed: cell_alive,
                     },
                 };
+                println!("{:?}", cell);
             });
 
         self.cells = new_generation;

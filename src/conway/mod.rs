@@ -163,6 +163,7 @@ mod test {
     #[test]
     fn test_if_grids_change() {
         let mut games = Conway::start_with_capacity(10);
+        games.start();
 
         let old_games = games.clone();
         let now = Instant::now();
@@ -192,6 +193,7 @@ mod test {
     #[test]
     fn test_pitch_and_volume() {
         let mut games = Conway::start_with_capacity(10);
+        games.start();
 
         games.next_gen();
         let number_of_games = games.grids.len();
