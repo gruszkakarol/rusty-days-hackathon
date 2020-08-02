@@ -3,7 +3,6 @@ use rand::rngs::OsRng;
 
 use super::cell::Cell;
 use super::index::Index;
-use super::organism::Organisms;
 use super::GameError;
 use super::Result;
 
@@ -87,10 +86,6 @@ impl Grid {
             });
 
         self.cells = new_generation;
-    }
-
-    pub fn organisms(&self) -> Organisms {
-        todo!();
     }
 
     pub fn iter(&self) -> std::slice::Iter<Cell> {
