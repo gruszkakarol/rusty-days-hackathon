@@ -26,15 +26,14 @@ impl Component for BoardView {
     }
 
     fn view(&self) -> Html {
-        let on_delete = &self.props.on_delete;
+        let delete_board = &self.props.on_delete;
 
         html! {
             <div class="board">
-                <button class="button board__close" onclick=on_delete>
+                <button class="button board__close" onclick=delete_board>
                     <i class="fas fa-times" />
                 </button>
                 <div class="board__cells">
-                    {"."}
                 </div>
             </div>
         }

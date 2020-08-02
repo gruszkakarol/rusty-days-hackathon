@@ -1,18 +1,39 @@
 mod board;
+mod controls;
 
 use board::BoardView;
+use controls::Controls;
 use yew::prelude::*;
 
 type Board = ();
 
+struct State {
+    boards: Vec<Board>,
+    simulation_started: bool,
+}
+
+impl State {
+    pub fn new() -> Self {
+        State {
+            boards: Vec::new(),
+            simulation_started: false,
+        }
+    }
+
+    fn toggle_simulation(&mut self) {
+        self.simulation_started = !self.simulation_started;
+    }
+}
+
 pub struct App {
     link: ComponentLink<Self>,
-    boards: Vec<Board>,
+    state: State,
 }
 
 pub enum Message {
     SpawnBoard,
     DeleteBoard(usize),
+    ToggleSimulation,
 }
 
 impl App {
@@ -31,7 +52,7 @@ impl Component for App {
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
             link,
-            boards: Vec::new(),
+            state: State::new(),
         }
     }
 
@@ -43,11 +64,15 @@ impl Component for App {
         match msg {
             Message::SpawnBoard => {
                 // TODO: push new board when they are ready instead of a number
-                self.boards.push(());
+                self.state.boards.push(());
                 true
             }
             Message::DeleteBoard(index) => {
-                self.boards.remove(index);
+                self.state.boards.remove(index);
+                true
+            }
+            Message::ToggleSimulation => {
+                self.state.toggle_simulation();
                 true
             }
             _ => false,
@@ -55,15 +80,17 @@ impl Component for App {
     }
 
     fn view(&self) -> Html {
-        let onclick = self.link.callback(|_| Message::SpawnBoard);
+        let spawn_board = self.link.callback(|_| Message::SpawnBoard);
+        let toggle_simulation = self.link.callback(|_| Message::ToggleSimulation);
         html! {
             <div class="app">
                 <div class="boards">
-                    {self.boards.iter().enumerate().map(|(i, b)| self.board_view(&b, i)).collect::<Html>()}
-                    <button class="button add" onclick=onclick>
+                    {self.state.boards.iter().enumerate().map(|(i, b)| self.board_view(&b, i)).collect::<Html>()}
+                    <button class="button add" onclick=spawn_board>
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
+                <Controls simulation_started=self.state.simulation_started on_click=toggle_simulation />
             </div>
         }
     }

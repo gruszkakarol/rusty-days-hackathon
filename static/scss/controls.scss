@@ -1,0 +1,16 @@
+.controls {
+    position: absolute;
+    right: 5%;
+    bottom: 5%;
+    background-color: $ELEMENT_BACKGROUND;
+    width: 100px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.state {
+    color: $WHITE;
+    background-color: transparent;
+}
