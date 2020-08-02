@@ -24,7 +24,6 @@ pub struct App {
 pub enum Message {
     SpawnGrid,
     DeleteGrid(usize),
-    ToggleSimulation,
 }
 
 impl App {
@@ -55,17 +54,14 @@ impl Component for App {
         match msg {
             Message::SpawnGrid => {
                 // TODO: push new board when they are ready instead of a number
-                self.state.simulation.add_game(Grid::random());
+                self.state.simulation.add_game(Grid::empty());
                 true
             }
             Message::DeleteGrid(index) => {
                 self.state.simulation.remove_game(index);
                 true
             }
-            Message::ToggleSimulation => {
-                self.state.simulation.toggle();
-                true
-            }
+
             _ => false,
         }
     }
@@ -74,12 +70,24 @@ impl Component for App {
         let spawn_grid = self.link.callback(|_| Message::SpawnGrid);
         html! {
             <div class="app">
-                <div class="grids">
-                    {self.state.simulation.iter().enumerate().map(|(i, g)| self.grid_view(&g, i)).collect::<Html>()}
-                    <button class="button add" onclick=spawn_grid>
-                        <i class="fas fa-plus"></i>
-                    </button>
+            <div class="intro">
+                <div class="tips">
+                    {"Ever wondered how Conway's Game of Life might sound like? Or even few Games of Life combined together? Add boards clicking the plus button and turn on them on with the triangle icon in the top right corner. Have fun!"}
                 </div>
+                <div class="authors">
+                    {"Created by:"}
+                    <a href="https://github.com/aleksanderwawrzyniak"> {"Aleksander Wawrzyniak"} </a>
+                    <a href="https://uint.me/"> {"uint"} </a>
+                    <a href="http://sniadek.tech/"> {"Sniadek"} </a>
+                    <a href="https://github.com/Sniadekk/rusty-days-hackathon"> {"Repository"} </a>
+                </div>
+            </div>
+            <div class="grids">
+                {self.state.simulation.iter().enumerate().map(|(i, g)| self.grid_view(&g, i)).collect::<Html>()}
+                <button class="button add" onclick=spawn_grid>
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
             </div>
         }
     }

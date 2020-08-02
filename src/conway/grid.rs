@@ -36,6 +36,17 @@ impl Grid {
         }
     }
 
+    pub fn empty() -> Self {
+        let mut cells: [Cell; GRID_WIDTH * GRID_HEIGHT] = [false.into(); GRID_WIDTH * GRID_HEIGHT];
+        Self {
+            cells,
+            stopped: true,
+            sound: Default::default(),
+            subgrids: Self::subgrids(),
+            subgrid_values: Default::default(),
+        }
+    }
+
     pub fn random() -> Grid {
         let mut cells: [Cell; GRID_WIDTH * GRID_HEIGHT] = [false.into(); GRID_WIDTH * GRID_HEIGHT];
 
@@ -47,7 +58,7 @@ impl Grid {
 
         Self {
             cells,
-            stopped: false,
+            stopped: true,
             sound: Default::default(),
             subgrids: Self::subgrids(),
             subgrid_values: Default::default(),

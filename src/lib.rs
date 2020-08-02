@@ -2,14 +2,9 @@
 mod client;
 mod conway;
 mod player;
-mod renderer;
 mod soundgen;
 
 use client::App;
-use conway::Grid;
-use renderer::Renderer;
-use soundgen::SoundGenerator;
-use std::{thread, time};
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global

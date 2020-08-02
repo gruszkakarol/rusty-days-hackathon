@@ -28,6 +28,7 @@ pub struct GridView {
     props: GridProps,
     canvas_ref: NodeRef,
     ctx: Option<web_sys::CanvasRenderingContext2d>,
+    pub stopped: bool,
 }
 
 impl GridView {
@@ -89,28 +90,33 @@ impl GridView {
     }
 
     pub fn simulate(&mut self) {
-        let soundgen = SoundGenerator::new();
-        self.props.grid.next_gen();
-        self.draw();
+        if !self.props.grid.stopped {
+            self.props.grid.start();
+            let soundgen = SoundGenerator::new();
+            self.props.grid.next_gen();
+            self.draw();
 
-        for (x, y) in self.props.grid.get_pitch_and_volume_per_subgrid() {
-            soundgen.play(*x as u32).expect("Fix it");
-        }
-
-        let wait = Delay::new(Duration::from_millis(300));
-        let future = async {
-            match wait.await {
-                Ok(md) => Message::Simulate,
-                Err(err) => Message::Simulate,
+            for (x, y) in self.props.grid.get_pitch_and_volume_per_subgrid() {
+                soundgen.play(*x as u32).expect("Fix it");
             }
-        };
-        send_future(self.link.clone(), future);
+
+            let wait = Delay::new(Duration::from_millis(300));
+            // TODO: handle this err
+            let future = async {
+                match wait.await {
+                    Ok(md) => Message::Simulate,
+                    Err(err) => Message::Simulate,
+                }
+            };
+            send_future(self.link.clone(), future);
+        }
     }
 }
 
 pub enum Message {
     ClickCanvas(MouseEvent),
     Simulate,
+    ToggleSimulation,
 }
 
 impl Component for GridView {
@@ -123,6 +129,7 @@ impl Component for GridView {
             canvas_ref: NodeRef::default(),
             ctx: None,
             link,
+            stopped: true,
         }
     }
 
@@ -132,18 +139,26 @@ impl Component for GridView {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Message::ClickCanvas(e) => self.toggle_cell(&e),
+            Message::ClickCanvas(e) => {
+                self.toggle_cell(&e);
+                false
+            }
             Message::Simulate => {
                 self.simulate();
+                false
+            }
+            Message::ToggleSimulation => {
+                self.props.grid.toggle();
+                self.simulate();
+                true
             }
         }
-        false
     }
 
     fn view(&self) -> Html {
         let delete_grid = &self.props.on_delete;
         let click_canvas = self.link.callback(|e| Message::ClickCanvas(e));
-        let toggle_simulation = self.link.callback(|_| Message::Simulate);
+        let toggle_simulation = self.link.callback(|_| Message::ToggleSimulation);
         html! {
             <div class="grid">
                 <div class="grid__controls">
@@ -152,9 +167,9 @@ impl Component for GridView {
                     </button>
                     <button class="button grid__play" onclick=toggle_simulation>
                         {if self.props.grid.stopped {
-                            html! { <i class="fas fa-stop"></i> }
+                            html! { <i class="fas fa-play"></i> }
                         } else {
-                            html!{ <i class="fas fa-play"></i> }
+                            html!{ <i class="fas fa-stop"></i> }
                         }}
                     </button>
                 </div>

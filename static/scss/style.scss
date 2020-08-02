@@ -7,7 +7,33 @@
 
 body, html {
   height: 100%;
-  font-family: 'Raleway', sans-serif;
+font-family: 'Fira Code', monospace;
+}
+
+.intro {
+  padding: 5% 0 0 2.5%;
+  font-size: 17px;
+  color: $WHITE;
+  font-style: italic;
+  font-weight: 300;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tips {
+  width: 420px;
+}
+
+.authors {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: 5%;
+
+  & a {
+    color: $WHITE;
+    width: 100%;
+  }
+
 }
 
 .app {
