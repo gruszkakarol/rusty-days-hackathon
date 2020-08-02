@@ -1,5 +1,5 @@
 /// size of a single cell
-pub const CELL_SIZE: usize = 20;
+pub const CELL_SIZE: usize = 10;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Cell {

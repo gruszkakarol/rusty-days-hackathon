@@ -20,10 +20,9 @@ body, html {
   display: flex;
   flex-wrap: wrap;
   background-color: $BACKGROUND;
-  justify-content: center;
   align-items: center;
   align-content: center;
-  height: 100%;
+  padding: 5% 0;
 }
 
 .grid {

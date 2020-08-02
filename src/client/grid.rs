@@ -1,10 +1,22 @@
 use crate::conway::{Grid, CELL_SIZE, GRID_HEIGHT, GRID_WIDTH};
 use crate::soundgen::SoundGenerator;
+use core::time::Duration;
+use std::future::Future;
 use wasm_bindgen::{JsCast, JsValue};
+use wasm_bindgen_futures::spawn_local;
+use wasm_timer::Delay;
 use web_sys::HtmlCanvasElement;
 use yew::prelude::*;
 use yew::MouseEvent;
-pub const STROKE_WIDTH: f64 = 2.0;
+
+pub fn send_future<COMP: Component, F>(link: ComponentLink<COMP>, future: F)
+where
+    F: Future<Output = COMP::Message> + 'static,
+{
+    spawn_local(async move {
+        link.send_message(future.await);
+    });
+}
 
 #[derive(Properties, Clone)]
 pub struct GridProps {
@@ -84,6 +96,15 @@ impl GridView {
         for (x, y) in self.props.grid.get_pitch_and_volume_per_subgrid() {
             soundgen.play(*x as u32).expect("Fix it");
         }
+
+        let wait = Delay::new(Duration::from_secs(1));
+        let future = async {
+            match wait.await {
+                Ok(md) => Message::Simulate,
+                Err(err) => Message::Simulate,
+            }
+        };
+        send_future(self.link.clone(), future);
     }
 }
 
