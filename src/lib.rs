@@ -1,6 +1,7 @@
 #![recursion_limit = "512"]
 mod client;
 mod conway;
+mod player;
 mod renderer;
 mod soundgen;
 

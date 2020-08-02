@@ -19,8 +19,7 @@ wee_alloc = { version = "0.4.4", optional = true }
 yew = "0.17"
 thiserror = "1.0"
 anyhow = "1.0"
-rand = "0.7.3"
-wasm-timer = "0.2.4"
+rand = { version = "0.7.3", features = ["wasm-bindgen"] }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
@@ -34,4 +33,11 @@ features = [
   'Element',
   'HtmlCanvasElement',
   'Window',
+  'AudioContext',
+  'AudioDestinationNode',
+  'AudioNode',
+  'AudioParam',
+  'GainNode',
+  'OscillatorNode',
+  'OscillatorType',
 ]
