@@ -97,7 +97,7 @@ impl GridView {
             soundgen.play(*x as u32).expect("Fix it");
         }
 
-        let wait = Delay::new(Duration::from_secs(1));
+        let wait = Delay::new(Duration::from_millis(300));
         let future = async {
             match wait.await {
                 Ok(md) => Message::Simulate,
