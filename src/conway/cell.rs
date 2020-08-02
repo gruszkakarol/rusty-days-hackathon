@@ -1,7 +1,20 @@
+/// size of a single cell
+pub const CELL_SIZE: usize = 20;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Cell {
     pub alive: bool,
     pub just_changed: bool,
+}
+
+impl Cell {
+    pub fn color(&self) -> &str {
+        if self.alive {
+            "#fff"
+        } else {
+            "#000"
+        }
+    }
 }
 
 impl Into<Cell> for bool {

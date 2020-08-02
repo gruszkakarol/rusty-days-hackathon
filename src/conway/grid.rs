@@ -7,16 +7,16 @@ use super::GameError;
 use super::Result;
 
 /// width of a single grid
-pub const GRID_WIDTH: usize = 100;
+pub const GRID_WIDTH: usize = 25;
 /// height of a single grid
-pub const GRID_HEIGHT: usize = 100;
+pub const GRID_HEIGHT: usize = 25;
 
 pub const NUMBER_OF_SUBGRIDS: usize = 25;
 
 #[derive(Clone)]
 pub struct Grid {
     sound: u32,
-    stopped: bool,
+    pub stopped: bool,
     cells: [Cell; GRID_WIDTH * GRID_HEIGHT],
     subgrids: Vec<(Index, Index)>,
 }
@@ -35,7 +35,10 @@ impl Grid {
         // let mut rng = thread_rng();
         let mut cells: [Cell; GRID_WIDTH * GRID_HEIGHT] = [true.into(); GRID_WIDTH * GRID_HEIGHT];
 
-        // cells.iter_mut().for_each(|cell| *cell = false.into());
+        cells
+            .iter_mut()
+            .enumerate()
+            .for_each(|(i, cell)| *cell = false.into());
 
         Self {
             cells,
@@ -112,6 +115,11 @@ impl Grid {
         };
 
         Ok(())
+    }
+
+    pub fn get_cell<I: Into<usize>>(&self, index: I) -> Option<&Cell> {
+        let index = index.into();
+        self.cells.get(index)
     }
 
     pub fn set_cell<I: Into<usize>>(&mut self, index: I, value: bool) -> Result<()> {

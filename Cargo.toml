@@ -20,7 +20,7 @@ yew = "0.17"
 thiserror = "1.0"
 anyhow = "1.0"
 rand = "0.7.3"
-
+wasm-timer = "0.2.4"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
@@ -29,4 +29,9 @@ wasm-bindgen-test = "0.3"
 version = "0.3.4"
 features = [
   'KeyboardEvent',
+  'CanvasRenderingContext2d',
+  'Document',
+  'Element',
+  'HtmlCanvasElement',
+  'Window',
 ]

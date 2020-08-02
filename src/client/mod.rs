@@ -1,8 +1,6 @@
-mod controls;
 mod grid;
 
 use crate::conway::{Conway, Grid};
-use controls::Controls;
 use grid::GridView;
 use yew::prelude::*;
 
@@ -74,7 +72,6 @@ impl Component for App {
 
     fn view(&self) -> Html {
         let spawn_grid = self.link.callback(|_| Message::SpawnGrid);
-        let toggle_simulation = self.link.callback(|_| Message::ToggleSimulation);
         html! {
             <div class="app">
                 <div class="grids">
@@ -83,7 +80,6 @@ impl Component for App {
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
-                <Controls simulation_started=self.state.simulation.stopped on_click=toggle_simulation />
             </div>
         }
     }
