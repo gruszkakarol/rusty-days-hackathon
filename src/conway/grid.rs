@@ -186,6 +186,22 @@ impl Grid {
         self.subgrid_values.iter()
     }
 
+    /// Counts cells that have died in last iteration and cells that has been raise in the
+    /// last iteration.
+    /// Returns (pitch, volume)
+    pub fn get_pitch_and_volume(&self) -> (u32, u32) {
+        let mut pitch_value: u32 = 0;
+        let mut volume_value: u32 = 0;
+
+        self.cells.iter().for_each(|cell| {
+            let just_changed = cell.just_changed as u32;
+            pitch_value += !cell.alive as u32 * just_changed;
+            volume_value += cell.alive as u32 * just_changed;
+        });
+
+        (pitch_value, volume_value)
+    }
+
     /// Returns subgrids for the current grid
     fn subgrids() -> [(Index, Index); NUMBER_OF_SUBGRIDS] {
         let mut subgrids: [(Index, Index); NUMBER_OF_SUBGRIDS] =

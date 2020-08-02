@@ -8,7 +8,6 @@ mod cell;
 mod error;
 mod grid;
 mod index;
-mod organism;
 
 pub use cell::{Cell, CELL_SIZE};
 pub use error::GameError;
@@ -71,7 +70,7 @@ impl Conway {
     // NOTE: It might be a good idea to use some identifiers for the games
     pub fn remove_game(&mut self, index: usize) -> Result<Grid> {
         if index >= self.number_of_games() {
-            return Err(GameError::IndexOutOfBounds(index.into()));
+            return Err(GameError::GameIndexOutOfBounds(index));
         }
 
         Ok(self.grids.remove(index))
@@ -102,7 +101,7 @@ impl Conway {
     pub fn stop_game(&mut self, game_index: usize) -> Result<()> {
         self.grids
             .get_mut(game_index)
-            .ok_or_else(|| GameError::IndexOutOfBounds(game_index.into()))?
+            .ok_or_else(|| GameError::GameIndexOutOfBounds(game_index))?
             .stop();
         Ok(())
     }
@@ -110,7 +109,7 @@ impl Conway {
     pub fn start_game(&mut self, game_index: usize) -> Result<()> {
         self.grids
             .get_mut(game_index)
-            .ok_or_else(|| GameError::IndexOutOfBounds(game_index.into()))?
+            .ok_or_else(|| GameError::GameIndexOutOfBounds(game_index))?
             .start();
         Ok(())
     }
@@ -118,7 +117,7 @@ impl Conway {
     pub fn toggle_game(&mut self, game_index: usize) -> Result<()> {
         self.grids
             .get_mut(game_index)
-            .ok_or_else(|| GameError::IndexOutOfBounds(game_index.into()))?
+            .ok_or_else(|| GameError::GameIndexOutOfBounds(game_index))?
             .toggle();
         Ok(())
     }
@@ -132,6 +131,19 @@ impl Conway {
             .iter_mut()
             .map(Grid::get_pitch_and_volume_per_subgrid)
             .collect()
+    }
+
+    /// Returns (pitch, volume) for choosen game
+    pub fn get_pitch_and_volume_for_grid(&self, game_idx: usize) -> Result<(u32, u32)> {
+        Ok(self
+            .grids
+            .get(game_idx)
+            .ok_or_else(|| GameError::IndexOutOfBounds(game_idx.into()))?
+            .get_pitch_and_volume())
+    }
+
+    pub fn get_pitch_and_volume_for_grids(&self) -> Vec<(u32, u32)> {
+        self.grids.iter().map(Grid::get_pitch_and_volume).collect()
     }
 }
 
